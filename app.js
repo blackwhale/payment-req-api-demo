@@ -77,8 +77,7 @@ function sendPaymentToServer(instrumentResponse) {
   window.setTimeout(function() {
     instrumentResponse.complete('success')
         .then(function() {
-          document.getElementById('result').innerHTML =
-              ChromeSamples.log(instrumentResponse);
+          ChromeSamples.log(instrumentResponse);
         })
         .catch(function(err) {
           ChromeSamples.setStatus(err);
