@@ -54,6 +54,7 @@ var details = {
     }
   ]
 };
+var paymentRequestObj;
 
 function onBuyClicked() {
   var supportedInstruments = [{
@@ -63,6 +64,7 @@ function onBuyClicked() {
   new PaymentRequest(supportedInstruments, details) // eslint-disable-line no-undef
   .show()
   .then(function(instrumentResponse) {
+    paymentRequestObj = instrumentResponse;
     sendPaymentToServer(instrumentResponse);
   })
   .catch(function(err) {
@@ -72,28 +74,21 @@ function onBuyClicked() {
 
 function sendPaymentToServer(instrumentResponse) {
   var paymentDetails = instrumentResponse.details;
-  instrumentResponse.complete('success')
-  .then(function() {
-
-    // Tokenize with Stripe.js
-    Stripe.setPublishableKey(STRIPE_PK);
-    Stripe.card.createToken({
-      number: paymentDetails.cardNumber,
-      cvc: paymentDetails.cardSecurityCode,
-      exp_month: paymentDetails.expiryMonth,
-      exp_year: paymentDetails.expiryYear,
-      address_zip: paymentDetails.billingAddress.postalCode,
-      address_line1: paymentDetails.billingAddress.addressLine[0],
-      address_line2: paymentDetails.billingAddress.addressLine[1],
-      address_city: paymentDetails.billingAddress.city,
-      address_state: paymentDetails.billingAddress.region,
-      address_country: paymentDetails.billingAddress.country,
-      name: paymentDetails.cardholderName
-    }, stripeResponseHandler);
-  })
-  .catch(function(err) {
-    ChromeSamples.setStatus(err);
-  });
+  // Tokenize with Stripe.js
+  Stripe.setPublishableKey(STRIPE_PK);
+  Stripe.card.createToken({
+    number: paymentDetails.cardNumber,
+    cvc: paymentDetails.cardSecurityCode,
+    exp_month: paymentDetails.expiryMonth,
+    exp_year: paymentDetails.expiryYear,
+    address_zip: paymentDetails.billingAddress.postalCode,
+    address_line1: paymentDetails.billingAddress.addressLine[0],
+    address_line2: paymentDetails.billingAddress.addressLine[1],
+    address_city: paymentDetails.billingAddress.city,
+    address_state: paymentDetails.billingAddress.region,
+    address_country: paymentDetails.billingAddress.country,
+    name: paymentDetails.cardholderName
+  }, stripeResponseHandler);
 }
 
 function stripeResponseHandler(status, response) {
@@ -111,7 +106,13 @@ function stripeResponseHandler(status, response) {
   $.post("https://runkit.io/thor-stripe/stripe-plain-charge-server/branches/master"
   ,myData,
   function(data) {
+  paymentRequestObj.complete('success')
+  .then(function() {
     ChromeSamples.log(JSON.stringify(data));
+  })
+  .catch(function(err) {
+    ChromeSamples.setStatus(err);
+  });
   }).fail(function() {
     // if things fail, tell us
     ChromeSamples.setStatus("I'm sorry something went wrong");
