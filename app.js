@@ -71,16 +71,24 @@ function onBuyClicked() {
 }
 
 function sendPaymentToServer(instrumentResponse) {
-  // There's no server-side component of these samples. Not transactions are
-  // processed and no money exchanged hands. Instantaneous transactions are not
-  // realistic. Add a 2 second delay to make it seem more real.
-  window.setTimeout(function() {
-    instrumentResponse.complete('success')
-        .then(function() {
-          ChromeSamples.log(instrumentResponse.details);
-        })
-        .catch(function(err) {
-          ChromeSamples.setStatus(err);
-        });
-  }, 2000);
+  var paymentDetails = instrumentResponse.details;
+  // Tokenize with Stripe.js
+  Stripe.setPublishableKey(STRIPE_PK);
+  Stripe.card.createToken({
+    number: paymentDetails.cardNumber,
+    cvc: paymentDetails.cardSecurityCode,
+    exp_month: paymentDetails.expiryMonth,
+    exp_year: paymentDetails.expiryYear,
+    address_zip: paymentDetails.billingAddress.postalCode,
+    address_line1: paymentDetails.billingAddress.addressLine[0],
+    address_line2: paymentDetails.billingAddress.addressLine[1],
+    address_city: paymentDetails.billingAddress.city,
+    address_state: paymentDetails.billingAddress.region,
+    address_country: paymentDetails.billingAddress.country,
+    name: paymentDetails.cardholderName
+  }, stripeResponseHandler);
 }
+
+function stripeResponseHandler(status, response) {
+  ChromeSamples.setStatus(response.id);
+})
