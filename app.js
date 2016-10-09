@@ -91,4 +91,4 @@ function sendPaymentToServer(instrumentResponse) {
 
 function stripeResponseHandler(status, response) {
   ChromeSamples.setStatus(response.id);
-})
+}
