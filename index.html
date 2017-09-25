@@ -51,7 +51,7 @@
       <h3>Live Output</h3>
 
       <div id="output" class="output">
-        <button type="button" id="buyButton" class="btn btn-info">Pay natively</button>
+        <div id="payment-request-button"></div>
         <p id="status" class="bg-warning"></p>
         <div><pre id="log"></pre></div>
         <hr>
@@ -71,8 +71,8 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <!-- Latest compiled and minified JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  <!-- Stripe.js -->
-  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+  <!-- Stripe.js V3 for Elements -->
+  <script src="https://js.stripe.com/v3/"></script>
   <!-- Local Code -->
   <script src="https://storage.googleapis.com/prshim/v1/payment-shim.js"></script>
   <script src="app.js"></script>
