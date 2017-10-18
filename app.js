@@ -1,18 +1,19 @@
-var STRIPE_PK = 'pk_test_IR0lZ3Ot5IQnsde6xuAmkHvB';
+const STRIPE_PK = 'pk_test_IR0lZ3Ot5IQnsde6xuAmkHvB';
 
 // Config Stripe.js V3
 stripe = Stripe(STRIPE_PK);
 elements = stripe.elements();
 
 // Config payment request
-paymentRequest = stripe.paymentRequest({
+let prData = {
   country: 'IE',
   currency: 'eur',
   total: {
     label: 'Demo total',
     amount: 100,
   },
-});
+};
+paymentRequest = stripe.paymentRequest(prData);
 paymentRequest.on('source', (event) => {
   console.log('Got source: ', event.source.id);
   event.complete('success');
@@ -21,6 +22,12 @@ paymentRequest.on('source', (event) => {
 });
 prButton = elements.create('paymentRequestButton', {
   paymentRequest,
+});
+// Listen to click events of the button
+prButton.on('click', e => {
+  // Here you can perform synchronous updates to your payment request
+  prData.total.amount += 100
+  paymentRequest.update({ total: prData.total });
 });
 // Check the availability of the Payment Request API first.
 paymentRequest.canMakePayment().then((result) => {
@@ -33,9 +40,9 @@ paymentRequest.canMakePayment().then((result) => {
 });
 
 // Helpers
-var ChromeSamples = {
+const ChromeSamples = {
   log: function() {
-    var line = Array.prototype.slice.call(arguments).map(function(argument) {
+    let line = Array.prototype.slice.call(arguments).map(function(argument) {
       return typeof argument === 'string' ? argument : JSON.stringify(argument);
     }).join(' ');
 
