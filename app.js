@@ -10,7 +10,7 @@ let prData = {
   currency: 'eur',
   total: {
     label: 'Demo total',
-    amount: 100,
+    amount: 0,
   },
 };
 paymentRequest = stripe.paymentRequest(prData);
@@ -23,20 +23,25 @@ paymentRequest.on('source', (event) => {
 prButton = elements.create('paymentRequestButton', {
   paymentRequest,
 });
+// Check the availability of the Payment Request API first.
+paymentRequest.canMakePayment().then((result) => {
+  if (result) {
+    // Calculate your total basket and update payment request
+    fetch('/.well-known/apple-developer-merchantid-domain-association').then(()=>{
+      prData.total.amount = 500
+      paymentRequest.update({ total: prData.total });
+      prButton.mount('#payment-request-button');
+    });
+  } else {
+    document.getElementById('payment-request-button').style.display = 'none';
+    ChromeSamples.setStatus("Not supported, please try with Chrome Beta on Android");
+  }
+});
 // Listen to click events of the button
 prButton.on('click', e => {
   // Here you can perform synchronous updates to your payment request
   prData.total.amount += 100
   paymentRequest.update({ total: prData.total });
-});
-// Check the availability of the Payment Request API first.
-paymentRequest.canMakePayment().then((result) => {
-  if (result) {
-    prButton.mount('#payment-request-button');
-  } else {
-    document.getElementById('payment-request-button').style.display = 'none';
-    ChromeSamples.setStatus("Not supported, please try with Chrome Beta on Android");
-  }
 });
 
 // Helpers
